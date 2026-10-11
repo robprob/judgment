@@ -26,32 +26,38 @@ func (r *Round) Run() {
 
 	// TODO: Determine rotating leading player's position
 	leaderIndex := 0
-	leader := &r.Players[leaderIndex]
+
 	// Players state bids
 	// TEMP: Random int [0, min(3, CardsPerPlayer)] capped at CardsPerPlayer
 	// TODO: Enforce bid "hook" rule (will be on/true by default)
-	for i := range r.Players {
-		r.Players[i].Bid = rand.IntN(min(3, r.CardsPerPlayer) + 1)
+	for offset := range r.Players {
+		// Find current player via wrap-around offset indexing
+		playerIndex := (leaderIndex + offset) % len(r.Players)
+		r.Players[playerIndex].Bid = rand.IntN(min(3, r.CardsPerPlayer) + 1)
 	}
 
 	// Players play through each trick
 
 	// DEBUG: Single trick
 	trick := Trick{Trump: r.Trump}
-	// Make leading play, determining suit and logging to current trick
-	leadCard := leader.Hand[0]
-	if !leader.Play(leadCard) {
-		panic("failed to play chosen card")
-	}
-	trick.Plays = append(trick.Plays, Play{PlayerIndex: leaderIndex, Card: leadCard})
-	for i := 1; i < len(r.Players); i++ {
-		p := &r.Players[i]
+
+	var leadSuit *Suit
+	for offset := range r.Players {
+		// Find current player via wrap-around offset indexing
+		playerIndex := (leaderIndex + offset) % len(r.Players)
+		p := &r.Players[playerIndex]
+
+		// Set lead/base suit after initial play
+		if len(trick.Plays) == 1 {
+			leadSuit = &trick.Plays[0].Card.Suit
+		}
 		// TEMP: Randomly play one of valid hand cards (shuffled)
-		card := p.LegalCards(&leadCard.Suit)[0]
+		card := p.LegalCards(leadSuit)[0]
 		if !p.Play(card) {
 			panic("failed to play chosen card")
 		}
-		trick.Plays = append(trick.Plays, Play{PlayerIndex: i, Card: card})
+		// Log play to current trick
+		trick.Plays = append(trick.Plays, Play{PlayerIndex: playerIndex, Card: card})
 	}
 
 	// Determine winning player, incrementing their trick count
