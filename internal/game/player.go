@@ -1,6 +1,8 @@
 package game
 
-import "slices"
+import (
+	"slices"
+)
 
 type Player struct {
 	Name   string
@@ -40,4 +42,11 @@ func (p *Player) Play(card Card) bool {
 	}
 	// Card not found in hand
 	return false
+}
+
+// Reset all round-specific fields
+func (p *Player) RoundReset() {
+	p.Hand = nil
+	p.Bid = 0
+	p.Tricks = 0
 }

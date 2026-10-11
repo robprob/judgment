@@ -14,6 +14,11 @@ type Round struct {
 
 // Run a single round of Judgment
 func (r *Round) Run() {
+	// Reset round-specific fields for all players
+	for i := range r.Players {
+		r.Players[i].RoundReset()
+	}
+
 	// Instantiate a new deck
 	deck := NewDeck()
 	// Shuffle and deal cards to each player
