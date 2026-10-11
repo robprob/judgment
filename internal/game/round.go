@@ -7,9 +7,19 @@ import (
 
 type Round struct {
 	Players        []Player
+	Rules          Rules
 	CardsPerPlayer int
 	Trump          Suit
 	Tricks         []Trick
+}
+
+func NewRound(players []Player, rules Rules, cardsPerPlayer int, trump Suit) *Round {
+	return &Round{
+		Players:        players,
+		Rules:          rules,
+		Trump:          trump,
+		CardsPerPlayer: cardsPerPlayer,
+	}
 }
 
 // Run a single round of Judgment
