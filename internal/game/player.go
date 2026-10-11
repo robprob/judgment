@@ -3,7 +3,7 @@ package game
 import "slices"
 
 type Player struct {
-	ID     int
+	Name   string
 	Hand   []Card
 	Bid    int
 	Tricks int

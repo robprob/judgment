@@ -2,8 +2,8 @@ package game
 
 // Associate each "play" in the stack with the player who placed it
 type Play struct {
-	PlayerID int
-	Card     Card
+	PlayerIndex int
+	Card        Card
 }
 
 type Trick struct {
@@ -24,7 +24,7 @@ func (t Trick) Winner() int {
 			winningPlay = challengePlay
 		}
 	}
-	return winningPlay.PlayerID
+	return winningPlay.PlayerIndex
 }
 
 // Helper function determining whether passed card outright beats a comparison card
