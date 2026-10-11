@@ -14,7 +14,7 @@ func main() {
 	numPlayers := 6
 	players := make([]game.Player, numPlayers)
 	for i := range numPlayers {
-		players[i].Name = strconv.Itoa(i + 1)
+		players[i].Name = "Player " + strconv.Itoa(i+1)
 	}
 
 	round := game.Round{
