@@ -56,8 +56,9 @@ func (r *Round) Run() {
 		if len(trick.Plays) == 1 {
 			leadSuit = &trick.Plays[0].Card.Suit
 		}
-		// TEMP: Randomly play one of valid hand cards (shuffled)
-		card := p.LegalCards(leadSuit)[0]
+		// TEMP: Randomly play one of valid hand cards
+		legal := p.LegalCards(leadSuit)
+		card := legal[rand.IntN(len(legal))]
 		if !p.Play(card) {
 			panic("failed to play chosen card")
 		}
