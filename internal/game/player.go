@@ -31,3 +31,13 @@ func (p Player) LegalCards(lead *Suit) []Card {
 	// All cards valid
 	return slices.Clone(p.Hand)
 }
+
+// Play specific card from player hand
+func (p *Player) Play(card Card) bool {
+	if i := slices.Index(p.Hand, card); i >= 0 {
+		p.Hand = slices.Delete(p.Hand, i, i+1)
+		return true
+	}
+	// Card not found in hand
+	return false
+}
