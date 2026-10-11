@@ -9,16 +9,18 @@ type Round struct {
 	Players        []Player
 	Rules          Rules
 	CardsPerPlayer int
+	StartingLeader int
 	Trump          Suit
 	Tricks         []Trick
 }
 
-func NewRound(players []Player, rules Rules, cardsPerPlayer int, trump Suit) *Round {
+func NewRound(players []Player, rules Rules, cardsPerPlayer, startingLeader int, trump Suit) *Round {
 	return &Round{
 		Players:        players,
 		Rules:          rules,
-		Trump:          trump,
 		CardsPerPlayer: cardsPerPlayer,
+		StartingLeader: startingLeader,
+		Trump:          trump,
 	}
 }
 
@@ -39,19 +41,16 @@ func (r *Round) Run() {
 		fmt.Printf("%s: %v\n", r.Players[i].Name, r.Players[i].Hand)
 	}
 
-	// TODO: Determine rotating leading player's position
-	leaderIndex := 0
-
 	// Players state bids
 	// TEMP: Random int [0, min(3, CardsPerPlayer)] capped at CardsPerPlayer
 	// TODO: Enforce bid "hook" rule (will be on/true by default)
 	for offset := range r.Players {
 		// Find current player via wrap-around offset indexing
-		playerIndex := (leaderIndex + offset) % len(r.Players)
+		playerIndex := (r.StartingLeader + offset) % len(r.Players)
 		r.Players[playerIndex].Bid = rand.IntN(min(3, r.CardsPerPlayer) + 1)
 	}
 
-	currentLeader := leaderIndex
+	currentLeader := r.StartingLeader
 
 	// Players play through all tricks, exhausting their hands
 	for range r.CardsPerPlayer {
