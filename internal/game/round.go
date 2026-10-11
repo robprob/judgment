@@ -17,7 +17,7 @@ func (r *Round) Run() {
 	for i := range r.Players {
 		r.Players[i].Hand = deck.DrawN(r.CardsPerPlayer)
 		// DEBUG: Print players/hands
-		fmt.Printf("Player %d: %v\n", r.Players[i].ID, r.Players[i].Hand)
+		fmt.Printf("Player %s: %v\n", r.Players[i].Name, r.Players[i].Hand)
 	}
 
 	// Players play through each trick

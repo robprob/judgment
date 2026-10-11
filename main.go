@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/robprob/judgment/internal/game"
 )
@@ -13,7 +14,7 @@ func main() {
 	numPlayers := 6
 	players := make([]game.Player, numPlayers)
 	for i := range numPlayers {
-		players[i].ID = i + 1
+		players[i].Name = strconv.Itoa(i + 1)
 	}
 
 	round := game.Round{
