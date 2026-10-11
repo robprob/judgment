@@ -11,7 +11,7 @@ type Trick struct {
 	Trump Suit
 }
 
-// Declare the current winning PlayerID of the Trick
+// Declare the current winning PlayerIndex of the Trick
 func (t Trick) Winner() int {
 	if len(t.Plays) == 0 {
 		return -1
