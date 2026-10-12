@@ -17,9 +17,7 @@ func main() {
 		players[i].Name = "Player " + strconv.Itoa(i+1)
 	}
 
-	round := game.Round{
-		Players:        players,
-		CardsPerPlayer: 7,
-	}
-	round.Run()
+	rules := game.DefaultRules()
+	game := game.NewGame(players, rules)
+	game.Run()
 }
