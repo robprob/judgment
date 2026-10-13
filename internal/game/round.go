@@ -42,12 +42,28 @@ func (r *Round) Run() {
 	}
 
 	// Players state bids
-	// TEMP: Random int [0, min(3, CardsPerPlayer)] capped at CardsPerPlayer
-	// TODO: Enforce bid "hook" rule (will be on/true by default)
+	sumBids := 0
+	maxBid := min(3, r.CardsPerPlayer)
 	for offset := range r.Players {
 		// Find current player via wrap-around offset indexing
 		playerIndex := (r.StartingLeader + offset) % len(r.Players)
-		r.Players[playerIndex].Bid = rand.IntN(min(3, r.CardsPerPlayer) + 1)
+		// TEMP: Random int [0, min(3, CardsPerPlayer)] capped at CardsPerPlayer
+		bid := rand.IntN(maxBid + 1)
+		if offset == (len(r.Players)-1) && r.Rules.HookRule && (sumBids+bid) == r.CardsPerPlayer {
+			// Bid is invalid via hook rule, player must choose another non-negative bid
+			// TEMP: Random 50/50 +/- 1 unless bid already 0
+			if bid == 0 {
+				bid++
+			} else if bid == maxBid {
+				bid--
+			} else if rand.IntN(2) == 0 {
+				bid--
+			} else {
+				bid++
+			}
+		}
+		sumBids += bid
+		r.Players[playerIndex].Bid = bid
 	}
 
 	currentLeader := r.StartingLeader
