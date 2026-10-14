@@ -18,6 +18,8 @@ func main() {
 	}
 
 	rules := game.DefaultRules()
-	game := game.NewGame(players, rules)
+	var seed uint64 = 115
+
+	game := game.NewGame(players, rules, seed)
 	game.Run()
 }

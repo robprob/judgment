@@ -20,7 +20,7 @@ func NewDeck() Deck {
 }
 
 // Randomly shuffle deck cards (Fisher-Yates)
-func (d Deck) Shuffle() {
+func (d Deck) Shuffle(rng *rand.Rand) {
 	rand.Shuffle(len(d), func(i, j int) {
 		d[i], d[j] = d[j], d[i]
 	})

@@ -25,7 +25,7 @@ func NewRound(players []Player, rules Rules, cardsPerPlayer, startingLeader int,
 }
 
 // Run a single round of Judgment
-func (r *Round) Run() {
+func (r *Round) Run(dealingRNG, decisionRNG *rand.Rand) {
 	// Reset round-specific fields for all players
 	for i := range r.Players {
 		r.Players[i].RoundReset()
@@ -34,7 +34,7 @@ func (r *Round) Run() {
 	// Instantiate a new deck
 	deck := NewDeck()
 	// Shuffle and deal cards to each player
-	deck.Shuffle()
+	deck.Shuffle(dealingRNG)
 	for i := range r.Players {
 		r.Players[i].Hand = deck.DrawN(r.CardsPerPlayer)
 		// DEBUG: Print players/hands
@@ -48,7 +48,7 @@ func (r *Round) Run() {
 		// Find current player via wrap-around offset indexing
 		playerIndex := (r.StartingLeader + offset) % len(r.Players)
 		// TEMP: Random int [0, min(3, CardsPerPlayer)] capped at CardsPerPlayer
-		bid := rand.IntN(maxBid + 1)
+		bid := decisionRNG.IntN(maxBid + 1)
 		if offset == (len(r.Players)-1) && r.Rules.HookRule && (sumBids+bid) == r.CardsPerPlayer {
 			// Bid is invalid via hook rule, player must choose another non-negative bid
 			// TEMP: Random 50/50 +/- 1 unless bid already 0
@@ -56,7 +56,7 @@ func (r *Round) Run() {
 				bid++
 			} else if bid == maxBid {
 				bid--
-			} else if rand.IntN(2) == 0 {
+			} else if decisionRNG.IntN(2) == 0 {
 				bid--
 			} else {
 				bid++
@@ -86,7 +86,7 @@ func (r *Round) Run() {
 			}
 			// TEMP: Randomly play one of valid hand cards
 			legal := p.LegalCards(leadSuit)
-			card := legal[rand.IntN(len(legal))]
+			card := legal[decisionRNG.IntN(len(legal))]
 			if !p.Play(card) {
 				panic("failed to play chosen card")
 			}
