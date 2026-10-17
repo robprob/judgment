@@ -5,11 +5,12 @@ import (
 )
 
 type Player struct {
-	Name   string
-	Hand   []Card
-	Bid    int
-	Tricks int
-	Score  int
+	Name     string
+	Strategy Strategy
+	Hand     []Card
+	Bid      int
+	Tricks   int
+	Score    int
 }
 
 // LegalCards returns the valid playable cards in the player's hand for this trick
