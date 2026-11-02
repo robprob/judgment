@@ -26,6 +26,10 @@ func main() {
 	players := make([]game.Player, numPlayers)
 	for i := range numPlayers {
 		players[i].Name = "Player " + strconv.Itoa(i+1)
+		// Per-player PCG instances
+		rng := rand.New(rand.NewPCG(*seed, uint64(100+i)))
+		// Set strategy as uniform random selection with a maxBid of 3
+		players[i].Strategy = game.NewRandomStrategy(rng, 3)
 	}
 
 	rules := game.DefaultRules()
