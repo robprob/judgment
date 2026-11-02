@@ -121,3 +121,16 @@ func (r *Round) Run(dealingRNG, decisionRNG *rand.Rand) {
 			p.Name, p.Bid, p.Tricks, points, p.Score)
 	}
 }
+
+// legalBids returns the bids currently availble to a player (in ascending order)
+// Hook Rule applies, if enabled
+func legalBids(cardsPerPlayer, sumSoFar int, isLast, hookRule bool) []int {
+	bids := make([]int, 0, cardsPerPlayer+1)
+	for b := range cardsPerPlayer + 1 {
+		if hookRule && isLast && sumSoFar+b == cardsPerPlayer {
+			continue // Forbidden by hook rule
+		}
+		bids = append(bids, b)
+	}
+	return bids
+}
