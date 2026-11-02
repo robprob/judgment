@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"math/rand/v2"
+	"os"
 	"strconv"
 
 	"github.com/robprob/judgment/internal/game"
@@ -18,9 +19,7 @@ func main() {
 		// Random seeding
 		*seed = rand.Uint64()
 	}
-	fmt.Printf("Seed: %d\n", *seed)
-
-	fmt.Println("Judgment time!")
+	fmt.Printf("Judgment time! (seed %d)\n", *seed)
 
 	// Instantiate players
 	numPlayers := 6
@@ -31,6 +30,7 @@ func main() {
 
 	rules := game.DefaultRules()
 
-	game := game.NewGame(players, rules, *seed)
-	game.Run()
+	g := game.NewGame(players, rules, *seed)
+	g.Out = os.Stdout
+	g.Run()
 }

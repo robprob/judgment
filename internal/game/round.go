@@ -2,6 +2,7 @@ package game
 
 import (
 	"fmt"
+	"io"
 	"math/rand/v2"
 )
 
@@ -12,6 +13,8 @@ type Round struct {
 	StartingLeader int
 	Trump          Suit
 	Tricks         []Trick
+
+	Out io.Writer // Destination for round output, io.Discard by default
 }
 
 func NewRound(players []Player, rules Rules, cardsPerPlayer, startingLeader int, trump Suit) *Round {
@@ -21,6 +24,7 @@ func NewRound(players []Player, rules Rules, cardsPerPlayer, startingLeader int,
 		CardsPerPlayer: cardsPerPlayer,
 		StartingLeader: startingLeader,
 		Trump:          trump,
+		Out:            io.Discard,
 	}
 }
 
@@ -37,8 +41,6 @@ func (r *Round) Run(dealingRNG, decisionRNG *rand.Rand) {
 	deck.Shuffle(dealingRNG)
 	for i := range r.Players {
 		r.Players[i].Hand = deck.DrawN(r.CardsPerPlayer)
-		// DEBUG: Print players/hands
-		fmt.Printf("%s: %v\n", r.Players[i].Name, r.Players[i].Hand)
 	}
 
 	// Players state bids
@@ -104,18 +106,18 @@ func (r *Round) Run(dealingRNG, decisionRNG *rand.Rand) {
 
 		// Log completed trick to history
 		r.Tricks = append(r.Tricks, trick)
-
-		fmt.Println(trick)
-		fmt.Println(winner)
 	}
 
 	// Calculate end-of-round scores
 	for i := range r.Players {
 		p := &r.Players[i]
+		points := 0
 		if p.Bid == p.Tricks {
-			p.Score += (10 + p.Bid)
+			points = 10 + p.Bid
 		}
 		// Currently no net-negative penalty, 0 points otherwise
-		fmt.Println(p)
+		p.Score += points
+		fmt.Fprintf(r.Out, " %s: bid %d, won %d, +%d (total %d)\n",
+			p.Name, p.Bid, p.Tricks, points, p.Score)
 	}
 }
