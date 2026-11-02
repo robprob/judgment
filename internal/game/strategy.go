@@ -1,7 +1,7 @@
 package game
 
 // Strategy decides bidding and played card decisions for a player
-// Implementations must return an element from the set of LegaBids / LegalCards
+// Implementations must return an element from the set of LegalBids / LegalCards
 // Engine validates chosen values, panics otherwise
 type Strategy interface {
 	ChooseBid(obs BidObservation) int
