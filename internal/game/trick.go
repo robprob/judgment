@@ -1,5 +1,7 @@
 package game
 
+import "slices"
+
 // Associate each "play" in the stack with the player who placed it
 type Play struct {
 	PlayerIndex int
@@ -43,4 +45,9 @@ func beats(card, comp Card, lead, trump Suit) bool {
 	}
 	// One is lead suit, other is trump suit (winner)
 	return card.Suit == trump
+}
+
+// clone returns a copy of the trick that properly shares no memory with the original
+func (t Trick) clone() Trick {
+	return Trick{Plays: slices.Clone(t.Plays), Trump: t.Trump}
 }

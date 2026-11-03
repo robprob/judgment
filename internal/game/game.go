@@ -12,8 +12,7 @@ type Game struct {
 	Rules   Rules
 	Rounds  []*Round
 
-	dealingRNG  *rand.Rand
-	decisionRNG *rand.Rand
+	dealingRNG *rand.Rand
 
 	Out io.Writer // Destination for game output, io.Discard by default
 }
@@ -24,8 +23,7 @@ func NewGame(players []Player, rules Rules, seed uint64) *Game {
 		Rules:   rules,
 
 		// Initialize seeded RNG
-		dealingRNG:  rand.New(rand.NewPCG(seed, 1)),
-		decisionRNG: rand.New(rand.NewPCG(seed, 2)),
+		dealingRNG: rand.New(rand.NewPCG(seed, 1)),
 
 		Out: io.Discard,
 	}
@@ -59,7 +57,7 @@ func (g *Game) Run() {
 
 		fmt.Fprintf(g.Out, "\nRound %d: %d cards, trump %s\n",
 			roundIndex+1, round.CardsPerPlayer, round.Trump)
-		round.Run(g.dealingRNG, g.decisionRNG)
+		round.Run(g.dealingRNG)
 
 		// Retain round players field as a shallow copy (frozen snapshot)
 		round.Players = slices.Clone(round.Players)

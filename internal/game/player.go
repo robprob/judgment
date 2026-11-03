@@ -5,12 +5,12 @@ import (
 )
 
 type Player struct {
-	Name     string
-	Strategy Strategy
-	Hand     []Card
-	Bid      int
-	Tricks   int
-	Score    int
+	Name      string
+	Strategy  Strategy
+	Hand      []Card
+	Bid       int
+	TricksWon int
+	Score     int
 }
 
 // LegalCards returns the valid playable cards in the player's hand for this trick
@@ -49,5 +49,5 @@ func (p *Player) Play(card Card) bool {
 func (p *Player) RoundReset() {
 	p.Hand = nil
 	p.Bid = 0
-	p.Tricks = 0
+	p.TricksWon = 0
 }

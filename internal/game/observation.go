@@ -24,7 +24,7 @@ type BidObservation struct {
 
 	// Strategy context
 	LegalBids    []int
-	PreviousBids []PlayerBid
+	PreviousBids []PlayerBid // In bidding order
 }
 
 type PlayObservation struct {
@@ -40,7 +40,7 @@ type PlayObservation struct {
 	CardsPerPlayer int
 	Trump          Suit
 	Bids           []int
-	CurrentTrick   []Play
+	CurrentTrick   Trick
 	PreviousTricks []Trick
 	TricksWon      []int
 
