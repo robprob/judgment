@@ -26,20 +26,38 @@ func newPlayers(numPlayers int, seed uint64) []game.Player {
 
 // runBatch plays many silent-output games and prints each seat's average final score
 func runBatch(games, numPlayers int, baseSeed uint64) {
+	rules := game.DefaultRules() // TEMP: Pass as function parameter in future
+
 	// Player totals log
+	numRounds := rules.StartingCards
+	roundTotals := make([][]float64, numRounds) // [round][seat]
+	for r := range roundTotals {
+		roundTotals[r] = make([]float64, numPlayers)
+	}
 	totals := make([]float64, numPlayers)
 	// Sum of squares
-	sumSquares := make([]float64, numPlayers)
+	squares := make([]float64, numPlayers)
 
 	for i := range games {
 		seed := baseSeed + uint64(i)
 		players := newPlayers(numPlayers, seed)
-		g := game.NewGame(players, game.DefaultRules(), seed)
+		g := game.NewGame(players, rules, seed)
 		g.Run() // g.Out defaults to io.Discard
+
+		// Accumulate points per round (change in each seat's running score)
+		prev := make([]int, numPlayers)
+		for r, round := range g.Rounds {
+			for seat, p := range round.Players {
+				roundTotals[r][seat] += float64(p.Score - prev[seat])
+				prev[seat] = p.Score
+			}
+		}
+
+		// Accumulate each seat's final score and square
 		for seat, p := range g.Players {
 			score := float64(p.Score)
 			totals[seat] += score
-			sumSquares[seat] += (score * score)
+			squares[seat] += (score * score)
 		}
 	}
 
@@ -48,9 +66,18 @@ func runBatch(games, numPlayers int, baseSeed uint64) {
 	n := float64(games)
 	for seat := range numPlayers {
 		mu := totals[seat] / n
-		variance := (sumSquares[seat] - (n * mu * mu)) / (n - 1)
+		variance := (squares[seat] - (n * mu * mu)) / (n - 1)
 		stdErr := math.Sqrt(variance / n)
 		fmt.Printf("  Seat %d: average score %.2f +/- %.2f\n", seat+1, mu, 1.96*stdErr) // 95% confidence interval
+	}
+
+	fmt.Println("\nAverage points per round, by seat")
+	for r, seats := range roundTotals {
+		fmt.Printf("  Round %d:", r+1)
+		for _, total := range seats {
+			fmt.Printf(" %6.2f", total/n)
+		}
+		fmt.Println()
 	}
 }
 
