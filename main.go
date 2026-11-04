@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"math"
 	"math/rand/v2"
 	"os"
 	"strconv"
@@ -26,7 +27,9 @@ func newPlayers(numPlayers int, seed uint64) []game.Player {
 // runBatch plays many silent-output games and prints each seat's average final score
 func runBatch(games, numPlayers int, baseSeed uint64) {
 	// Player totals log
-	totals := make([]int, numPlayers)
+	totals := make([]float64, numPlayers)
+	// Sum of squares
+	sumSquares := make([]float64, numPlayers)
 
 	for i := range games {
 		seed := baseSeed + uint64(i)
@@ -34,13 +37,20 @@ func runBatch(games, numPlayers int, baseSeed uint64) {
 		g := game.NewGame(players, game.DefaultRules(), seed)
 		g.Run() // g.Out defaults to io.Discard
 		for seat, p := range g.Players {
-			totals[seat] += p.Score
+			score := float64(p.Score)
+			totals[seat] += score
+			sumSquares[seat] += (score * score)
 		}
 	}
 
 	fmt.Printf("%d games (seeds %d to %d)\n", games, baseSeed, baseSeed+uint64(games-1))
-	for seat, total := range totals {
-		fmt.Printf("  Seat %d: average score %.2f\n", seat+1, float64(total)/float64(games))
+
+	n := float64(games)
+	for seat := range numPlayers {
+		mu := totals[seat] / n
+		variance := (sumSquares[seat] - (n * mu * mu)) / (n - 1)
+		stdErr := math.Sqrt(variance / n)
+		fmt.Printf("  Seat %d: average score %.2f +/- %.2f\n", seat+1, mu, 1.96*stdErr) // 95% confidence interval
 	}
 }
 
