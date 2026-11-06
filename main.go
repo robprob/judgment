@@ -24,7 +24,7 @@ func newPlayers(numPlayers int, seed uint64) []game.Player {
 	return players
 }
 
-// runBatch plays many silent-output games and prints each seat's average final score
+// runBatch plays many silent-output games and prints seat/round statistics
 func runBatch(games, numPlayers int, baseSeed uint64) {
 	rules := game.DefaultRules() // TEMP: Pass as function parameter in future
 
@@ -61,21 +61,56 @@ func runBatch(games, numPlayers int, baseSeed uint64) {
 		}
 	}
 
-	fmt.Printf("%d games (seeds %d to %d)\n", games, baseSeed, baseSeed+uint64(games-1))
-
+	// Mean final score across all sets
 	n := float64(games)
-	for seat := range numPlayers {
-		mu := totals[seat] / n
-		variance := (squares[seat] - (n * mu * mu)) / (n - 1)
-		stdErr := math.Sqrt(variance / n)
-		fmt.Printf("  Seat %d: average score %.2f +/- %.2f\n", seat+1, mu, 1.96*stdErr) // 95% confidence interval
+	seatsMu := 0.0
+	for _, total := range totals {
+		seatsMu += total / n
+	}
+	seatsMu /= float64(numPlayers)
+
+	// Mean points per round, across all sets
+	roundMus := make([]float64, numRounds)
+	for r, seats := range roundTotals {
+		for _, total := range seats {
+			roundMus[r] += total / n
+		}
+		roundMus[r] /= float64(numPlayers)
 	}
 
+	// Print summary tables
+	fmt.Printf("%d games (seeds %d to %d)\n", games, baseSeed, baseSeed+uint64(games-1))
+
+	// Print per-seat means with 95% confidence interval
+	for seat := range numPlayers {
+		seatMu := totals[seat] / n
+		variance := (squares[seat] - n*seatMu*seatMu) / (n - 1)
+		stdErr := math.Sqrt(variance / n)
+		fmt.Printf("  Seat %d: average score %.2f +/- %.2f\n", seat+1, seatMu, 1.96*stdErr)
+	}
+
+	// Print per-seat, per-round means
 	fmt.Println("\nAverage points per round, by seat")
 	for r, seats := range roundTotals {
 		fmt.Printf("  Round %d:", r+1)
 		for _, total := range seats {
 			fmt.Printf(" %6.2f", total/n)
+		}
+		fmt.Println()
+	}
+
+	// Per-seat deviations from the mean of all seats
+	fmt.Println("\nSeat deviation from mean of seats")
+	for seat := range numPlayers {
+		fmt.Printf("  Seat %d: %+6.2f\n", seat+1, totals[seat]/n-seatsMu)
+	}
+
+	// Per-seat deviations from each round's mean
+	fmt.Println("\nSeat deviation from round mean, by round")
+	for r, seats := range roundTotals {
+		fmt.Printf("  Round %d:", r+1)
+		for _, total := range seats {
+			fmt.Printf(" %+6.2f", total/n-roundMus[r])
 		}
 		fmt.Println()
 	}
